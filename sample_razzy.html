@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no"/>
+<title>Razzy Cools Down! — Moodsters Sample Game</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--razzy:#E53935;--tully:#4CAF50;--coz:#FFD700;--brand:#5C35BF}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#1A1A2E;height:100vh;overflow:hidden;user-select:none}
+.scene{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .5s;padding:20px;text-align:center}
+.scene.active{opacity:1;pointer-events:all}
+#dots{position:fixed;top:16px;left:50%;transform:translateX(-50%);display:flex;gap:10px;z-index:100}
+.dot{width:12px;height:12px;border-radius:50%;background:rgba(255,255,255,.3);transition:background .3s}
+.dot.done{background:var(--coz)}.dot.current{background:#fff;box-shadow:0 0 8px #fff}
+.title{font-size:1.5rem;font-weight:800;color:#fff;margin-bottom:6px;text-shadow:0 2px 8px rgba(0,0,0,.4)}
+.sub{font-size:1rem;color:rgba(255,255,255,.8);margin-bottom:24px}
+.char{width:120px;height:120px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:3.5rem;box-shadow:0 8px 32px rgba(0,0,0,.3);animation:bounce 2s ease-in-out infinite;margin:0 auto 16px}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.speech{background:#fff;border-radius:20px;padding:14px 22px;max-width:340px;font-size:1rem;font-weight:600;color:#2D2347;box-shadow:0 4px 20px rgba(0,0,0,.15);line-height:1.5;margin:12px auto}
+.tap-btn{background:linear-gradient(135deg,#fff,#f0f0f0);border:none;border-radius:50%;width:130px;height:130px;font-size:3.8rem;cursor:pointer;box-shadow:0 8px 32px rgba(0,0,0,.25);transition:transform .15s;animation:pulse 1.8s ease-in-out infinite;margin:16px auto;display:block}
+@keyframes pulse{0%,100%{box-shadow:0 8px 32px rgba(255,255,255,.2)}50%{box-shadow:0 8px 48px rgba(255,255,255,.5)}}
+.tap-btn:active{transform:scale(.92)}
+.nxt{background:rgba(255,255,255,.15);color:#fff;border:2px solid rgba(255,255,255,.4);border-radius:50px;padding:12px 32px;font-size:.95rem;font-weight:700;cursor:pointer;margin-top:20px;display:none;transition:all .2s}
+.nxt:hover{background:rgba(255,255,255,.25)}.nxt.show{display:inline-block}
+.pots{display:flex;gap:14px;margin-bottom:20px;flex-wrap:wrap;justify-content:center}
+.pot{width:56px;height:56px;border-radius:50%;border:3px solid transparent;cursor:pointer;transition:transform .2s;font-size:1.4rem;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+.pot:hover{transform:scale(1.12)}.pot.sel{border-color:#fff;transform:scale(1.15)}
+.razzy-c{width:160px;height:160px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:5rem;cursor:pointer;transition:background .4s;border:4px dashed rgba(255,255,255,.4);margin:0 auto;animation:bounce 2s ease-in-out infinite}
+.bring{width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.2) 0%,transparent 70%);border:4px solid rgba(255,255,255,.5);display:flex;align-items:center;justify-content:center;font-size:3.5rem;margin:20px auto;transition:transform 1s,background .5s;cursor:pointer;box-shadow:0 0 30px rgba(76,175,80,.4)}
+.bdots{display:flex;gap:10px;margin:16px auto;justify-content:center}
+.bd{width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,.3);transition:background .3s}
+.bd.on{background:var(--tully)}
+.ditems{display:flex;gap:20px;margin-bottom:20px;flex-wrap:wrap;justify-content:center}
+.di{width:80px;height:80px;border-radius:16px;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:2.4rem;cursor:grab;box-shadow:0 4px 16px rgba(0,0,0,.2);border:2px solid rgba(255,255,255,.3);transition:transform .2s,opacity .2s}
+.di:active{cursor:grabbing;transform:scale(1.1)}.di.used{opacity:.3;pointer-events:none}
+.dtgt{width:140px;height:140px;border-radius:50%;border:4px dashed rgba(255,255,255,.5);display:flex;align-items:center;justify-content:center;font-size:4rem;background:rgba(255,255,255,.08);transition:all .3s;animation:bounce 2s ease-in-out infinite;margin:0 auto}
+.dtgt.hi{border-color:#fff;background:rgba(255,255,255,.2)}.dtgt.ok{border-color:var(--tully);background:rgba(76,175,80,.2);animation:none}
+.twrap{display:flex;align-items:center;gap:28px;margin:16px auto}
+.thermo{width:50px;height:280px;background:rgba(255,255,255,.1);border-radius:25px;border:3px solid rgba(255,255,255,.3);position:relative;overflow:hidden;cursor:pointer}
+.tfill{position:absolute;bottom:0;width:100%;background:linear-gradient(to top,var(--razzy),#FF9800,var(--coz));border-radius:0 0 22px 22px;transition:height .4s}
+.thandle{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:46px;height:46px;background:#fff;border-radius:50%;box-shadow:0 3px 12px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;font-size:1.3rem;cursor:grab}
+.rface{font-size:4rem;transition:all .4s;filter:drop-shadow(0 4px 12px rgba(0,0,0,.3))}
+.cconf{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:50}
+.cp{position:absolute;width:12px;height:12px;border-radius:3px;animation:fall linear forwards}
+@keyframes fall{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}
+.cchars{display:flex;gap:20px;margin:20px auto;flex-wrap:wrap;justify-content:center}
+.cc{font-size:3rem;animation:wiggle .6s ease-in-out infinite alternate}
+@keyframes wiggle{0%{transform:rotate(-15deg) scale(1)}100%{transform:rotate(15deg) scale(1.1)}}
+.sfield{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin:20px auto;max-width:360px}
+.sbtn{width:62px;height:62px;border-radius:50%;background:rgba(255,215,0,.2);border:2px solid rgba(255,215,0,.5);font-size:1.8rem;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center}
+.sbtn:hover{background:rgba(255,215,0,.4);transform:scale(1.1)}
+.sbtn.tap{background:var(--coz);border-color:var(--coz);animation:pop .3s;pointer-events:none}
+@keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.4)}100%{transform:scale(1)}}
+.award{font-size:1.6rem;font-weight:800;color:var(--coz);margin:16px 0;display:none;animation:glow 1.5s ease-in-out infinite alternate}
+@keyframes glow{0%{text-shadow:0 0 10px rgba(255,215,0,.4)}100%{text-shadow:0 0 30px rgba(255,215,0,.9)}}
+.replay{background:linear-gradient(135deg,var(--brand),#7B52E8);color:#fff;border:none;border-radius:50px;padding:14px 36px;font-size:1rem;font-weight:700;cursor:pointer;margin-top:16px;display:none;box-shadow:0 6px 20px rgba(92,53,191,.4);transition:transform .2s}
+.replay:hover{transform:scale(1.04)}
+</style>
+</head>
+<body>
+<div id="dots"><div class="dot current" id="d0"></div><div class="dot" id="d1"></div><div class="dot" id="d2"></div><div class="dot" id="d3"></div><div class="dot" id="d4"></div><div class="dot" id="d5"></div></div>
+<div class="cconf" id="cc"></div>
+
+<!-- S1 -->
+<div class="scene active" id="s0" style="background:linear-gradient(160deg,#4A0000,#B71C1C,#E53935)">
+  <div class="title">Oh No, Razzy! 😡</div>
+  <div class="sub">Tap Razzy to find out why he's angry!</div>
+  <div class="speech" id="sp1">Grrrr! My block tower fell down! I am SO MAD!!</div>
+  <button class="tap-btn" id="tb" onclick="s1()">😡</button>
+  <button class="nxt" id="n1" onclick="go(1)">Next ▶</button>
+</div>
+
+<!-- S2 -->
+<div class="scene" id="s1" style="background:linear-gradient(160deg,#1A0000,#880E4F,#E91E63)">
+  <div class="title">Color Razzy Red! 🎨</div><div class="sub">Pick a color, then tap Razzy!</div>
+  <div class="pots">
+    <div class="pot" style="background:#E53935" onclick="pick('#E53935',this)">🔴</div>
+    <div class="pot" style="background:#FF9800" onclick="pick('#FF9800',this)">🟠</div>
+    <div class="pot" style="background:#FFD700" onclick="pick('#FFD700',this)">🟡</div>
+    <div class="pot" style="background:#4CAF50" onclick="pick('#4CAF50',this)">🟢</div>
+    <div class="pot" style="background:#1976D2" onclick="pick('#1976D2',this)">🔵</div>
+  </div>
+  <div class="razzy-c" id="rc" onclick="colorR()">😡</div>
+  <div class="speech" id="sp2" style="display:none">Yes! So red! And that is OKAY! 🔴</div>
+  <button class="nxt" id="n2" onclick="go(2)">Next ▶</button>
+</div>
+
+<!-- S3 -->
+<div class="scene" id="s2" style="background:linear-gradient(160deg,#0D1F0D,#1B5E20,#2E7D32)">
+  <div class="title">Breathe Like a Dragon! 🐉</div><div class="sub">Tap the circle — breathe in and out!</div>
+  <div style="display:flex;gap:20px;justify-content:center;margin-bottom:8px">
+    <div style="text-align:center"><div class="char" style="background:#4CAF50;width:80px;height:80px;font-size:2rem">😌</div><div style="color:rgba(255,255,255,.7);font-size:.8rem">Tully</div></div>
+    <div style="text-align:center"><div class="char" style="background:#E53935;width:80px;height:80px;font-size:2rem">😤</div><div style="color:rgba(255,255,255,.7);font-size:.8rem">Razzy</div></div>
+  </div>
+  <div class="bring" id="br" onclick="breath()">🔥</div>
+  <div id="bl" style="font-size:1.2rem;font-weight:700;color:#fff;margin-top:8px;min-height:32px">Tap to breathe in! ⬆️</div>
+  <div class="bdots"><div class="bd" id="bd0"></div><div class="bd" id="bd1"></div><div class="bd" id="bd2"></div></div>
+  <div class="speech" id="sp3" style="display:none">Phoooo… so much better! 💚</div>
+  <button class="nxt" id="n3" onclick="go(3)">Next ▶</button>
+</div>
+
+<!-- S4 -->
+<div class="scene" id="s3" style="background:linear-gradient(160deg,#1A0A2E,#4A148C,#7B1FA2)">
+  <div class="title">Choose a Calm-Down Tool! 💜</div><div class="sub">Drag something to Razzy!</div>
+  <div class="ditems">
+    <div class="di" id="di0" draggable="true" ondragstart="ds(event,'pillow')" ontouchstart="ts(event,'pillow',0)">🛏️</div>
+    <div class="di" id="di1" draggable="true" ondragstart="ds(event,'water')" ontouchstart="ts(event,'water',1)">💧</div>
+    <div class="di" id="di2" draggable="true" ondragstart="ds(event,'hug')" ontouchstart="ts(event,'hug',2)">🤗</div>
+  </div>
+  <div class="dtgt" id="dt" ondragover="event.preventDefault();this.classList.add('hi')" ondragleave="this.classList.remove('hi')" ondrop="drop(event)">😡</div>
+  <div class="speech" id="sp4" style="display:none">Thank you! That helps SO much! 🩷</div>
+  <button class="nxt" id="n4" onclick="go(4)">Next ▶</button>
+</div>
+
+<!-- S5 -->
+<div class="scene" id="s4" style="background:linear-gradient(160deg,#1A0000,#5D1B1B,#37474F)">
+  <div class="title">The Anger Thermometer! 🌡️</div><div class="sub">Drag the handle DOWN to cool Razzy off!</div>
+  <div class="twrap">
+    <div class="rface" id="rf">😡</div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+      <span style="font-size:1.2rem">🔥</span>
+      <div class="thermo" id="th"><div class="tfill" id="tf" style="height:90%"></div><div class="thandle" id="thand" style="bottom:calc(90% - 23px)">🔥</div></div>
+      <span style="font-size:1.2rem">❄️</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:20px;font-size:.75rem;color:rgba(255,255,255,.7)"><span>😡 Furious</span><span>😤 Angry</span><span>😐 OK</span><span>🙂 Calm</span></div>
+  </div>
+  <div class="speech" id="sp5" style="display:none">I'm COOL! HIGH FIVE! 🖐️✨</div>
+  <button class="nxt" id="n5" onclick="go(5)">Next ▶</button>
+</div>
+
+<!-- S6 -->
+<div class="scene" id="s5" style="background:linear-gradient(160deg,#0D0D2E,#1A237E,#311B92)">
+  <div class="title">Razzy's Cool-Down Dance! 🎉</div>
+  <div class="sub" id="s6s">Tap all the stars! ⭐</div>
+  <div class="cchars"><span class="cc" style="animation-delay:0s">😡</span><span class="cc" style="animation-delay:.15s">😄</span><span class="cc" style="animation-delay:.3s">😌</span></div>
+  <div class="sfield" id="sf"></div>
+  <div class="award" id="aw">⭐ YOU DID IT! You helped Razzy! ⭐</div>
+  <button class="replay" id="rp" onclick="restart()">🔄 Play Again!</button>
+</div>
+
+<script>
+let cur=0,sc=null,ct=0,bs=0,bc=0,drag=null,td=false,tl=90,stars=0;
+const FA=['😡','😤','😠','😐','🙂','😊'];
+
+function go(n){document.getElementById('s'+cur).classList.remove('active');document.getElementById('d'+cur).className='dot done';cur=n;document.getElementById('s'+n).classList.add('active');document.getElementById('d'+n).className='dot current';if(n===5)initC();beep(440+n*40)}
+
+let ac=null;
+function beep(f,d=.15,t='sine'){try{if(!ac)ac=new(window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(ac.destination);o.frequency.value=f;o.type=t;g.gain.setValueAtTime(.2,ac.currentTime);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+d);o.start();o.stop(ac.currentTime+d)}catch(e){}}
+function fan(){[523,659,784,1047].forEach((f,i)=>setTimeout(()=>beep(f,.3,'triangle'),i*120))}
+
+function s1(){document.getElementById('tb').textContent='😤';document.getElementById('sp1').textContent="Okay… can you help me feel better? 🥺";document.getElementById('n1').classList.add('show');beep(300,.2)}
+function pick(c,el){sc=c;document.querySelectorAll('.pot').forEach(p=>p.classList.remove('sel'));el.classList.add('sel');beep(500,.1)}
+function colorR(){if(!sc)return;ct++;document.getElementById('rc').style.background=sc;beep(600,.1);if(ct>=2){document.getElementById('sp2').style.display='block';document.getElementById('n2').classList.add('show');beep(700,.2)}}
+
+function breath(){
+  const r=document.getElementById('br'),l=document.getElementById('bl');
+  if(bs===0||bs===2){r.style.transform='scale(1.5)';r.textContent='🌬️';l.textContent='Hold…';bs=1;beep(220,.8,'triangle');setTimeout(()=>{r.style.transform='scale(1)';r.textContent='🔥';l.textContent='Breathe OUT! 💨';bs=2},1500);}
+  else{document.getElementById('bd'+bc).classList.add('on');beep(180,.6);bc++;bs=0;if(bc>=3){document.getElementById('sp3').style.display='block';document.getElementById('n3').classList.add('show');l.textContent='Great! 🌿';fan()}else l.textContent='Tap again! ⬆️';}
+}
+
+function ds(e,l){drag=l}
+function drop(e){e.preventDefault();if(!drag)return;const t=document.getElementById('dt');t.classList.remove('hi');t.classList.add('ok');const m={pillow:'Mmm cozy! That helps! 😊',water:'Cool water! Ahh! 💧',hug:'A hug! So safe! 🩷'};t.textContent={pillow:'🛏️',water:'💧',hug:'🤗'}[drag]||'😊';document.getElementById('sp4').textContent=m[drag]||'Thank you! 🩷';document.getElementById('sp4').style.display='block';document.getElementById('n4').classList.add('show');drag=null;fan()}
+
+let cl=null,ti=null,tx=null;
+function ts(e,l,i){e.preventDefault();ti=l;tx=i;const s=document.getElementById('di'+i),r=s.getBoundingClientRect();cl=s.cloneNode(true);cl.style.cssText=`position:fixed;width:80px;height:80px;border-radius:16px;background:rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-size:2.4rem;pointer-events:none;z-index:999;left:${r.left}px;top:${r.top}px`;document.body.appendChild(cl);document.addEventListener('touchmove',tm,{passive:false});document.addEventListener('touchend',te2,{once:true})}
+function tm(e){e.preventDefault();const t=e.touches[0];cl.style.left=(t.clientX-40)+'px';cl.style.top=(t.clientY-40)+'px';const d=document.getElementById('dt'),r=d.getBoundingClientRect();t.clientX>r.left&&t.clientX<r.right&&t.clientY>r.top&&t.clientY<r.bottom?d.classList.add('hi'):d.classList.remove('hi')}
+function te2(e){document.removeEventListener('touchmove',tm);if(cl){cl.remove();cl=null}const t=e.changedTouches[0],d=document.getElementById('dt'),r=d.getBoundingClientRect();if(t.clientX>r.left&&t.clientX<r.right&&t.clientY>r.top&&t.clientY<r.bottom){drag=ti;drop({preventDefault:()=>{}});if(tx!==null)document.getElementById('di'+tx).classList.add('used')}d.classList.remove('hi');ti=null;tx=null}
+
+function setT(p){p=Math.max(0,Math.min(100,p));tl=p;document.getElementById('tf').style.height=p+'%';document.getElementById('thand').style.bottom='calc('+p+'% - 23px)';document.getElementById('rf').textContent=FA[Math.min(Math.round((100-p)/20),5)];beep(200+(100-p)*4,.07);if(p<=5){document.getElementById('sp5').style.display='block';document.getElementById('n5').classList.add('show');fan()}}
+const TH=document.getElementById('th'),THA=document.getElementById('thand');
+THA.addEventListener('mousedown',e=>{td=true;e.preventDefault()});
+THA.addEventListener('touchstart',e=>{td=true;e.preventDefault()},{passive:false});
+document.addEventListener('mousemove',e=>{if(!td)return;const r=TH.getBoundingClientRect();setT(100-((e.clientY-r.top)/r.height)*100)});
+document.addEventListener('touchmove',e=>{if(!td)return;const r=TH.getBoundingClientRect();setT(100-((e.touches[0].clientY-r.top)/r.height)*100);e.preventDefault()},{passive:false});
+document.addEventListener('mouseup',()=>td=false);document.addEventListener('touchend',()=>td=false);
+TH.addEventListener('click',e=>{const r=TH.getBoundingClientRect();setT(100-((e.clientY-r.top)/r.height)*100)});
+
+function initC(){confetti();fan();stars=0;const sf=document.getElementById('sf');sf.innerHTML='';for(let i=0;i<10;i++){const b=document.createElement('button');b.className='sbtn';b.textContent='⭐';b.onclick=function(){if(this.classList.contains('tap'))return;this.classList.add('tap');this.textContent='✨';stars++;beep(600+stars*30,.15);if(stars>=10){document.getElementById('s6s').textContent='🎉 Amazing! You helped Razzy!';document.getElementById('aw').style.display='block';document.getElementById('rp').style.display='inline-block';confetti();fan();setTimeout(fan,600)}};sf.appendChild(b)}}
+
+function confetti(){const c=document.getElementById('cc'),cols=['#FFD700','#FF69B4','#4CAF50','#E53935','#FF9800','#1976D2','#fff'];for(let i=0;i<60;i++){const el=document.createElement('div');el.className='cp';el.style.cssText=`left:${Math.random()*100}vw;top:-20px;background:${cols[~~(Math.random()*cols.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.8}s;width:${8+Math.random()*10}px;height:${8+Math.random()*10}px;border-radius:${Math.random()>.5?'50%':'3px'}`;c.appendChild(el);setTimeout(()=>el.remove(),4500)}}
+
+function restart(){cur=0;sc=null;ct=0;bs=0;bc=0;drag=null;td=false;tl=90;stars=0;for(let i=0;i<6;i++){document.getElementById('s'+i).classList.remove('active');document.getElementById('d'+i).className='dot'}document.getElementById('s0').classList.add('active');document.getElementById('d0').className='dot current';document.getElementById('tb').textContent='😡';document.getElementById('sp1').textContent="Grrrr! My block tower fell down! I am SO MAD!!";document.getElementById('n1').classList.remove('show');document.querySelectorAll('.pot').forEach(p=>p.classList.remove('sel'));document.getElementById('rc').style.background='';document.getElementById('sp2').style.display='none';document.getElementById('n2').classList.remove('show');document.getElementById('br').style.transform='';document.getElementById('bl').textContent='Tap to breathe in! ⬆️';document.querySelectorAll('.bd').forEach(d=>d.classList.remove('on'));document.getElementById('sp3').style.display='none';document.getElementById('n3').classList.remove('show');document.getElementById('dt').className='dtgt';document.getElementById('dt').textContent='😡';document.querySelectorAll('.di').forEach(d=>d.classList.remove('used'));document.getElementById('sp4').style.display='none';document.getElementById('n4').classList.remove('show');setT(90);document.getElementById('sp5').style.display='none';document.getElementById('n5').classList.remove('show')}
+</script>
+</body>
+</html>

@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title id="app-title">🎮 Moodsters Studio</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --brand:#5C35BF;--brand-l:#7B52E8;
+  --coz:#FFD700;--lolly:#FF69B4;--tully:#4CAF50;
+  --razzy:#E53935;--quigly:#FF9800;--snorf:#1976D2;
+  --bg:#F8F5FF;--card:#fff;--text:#2D2347;--muted:#7A6E8A;
+  --radius:16px;--shadow:0 4px 24px rgba(92,53,191,.12);
+}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* ── Header ── */
+header{background:linear-gradient(135deg,var(--brand),#9B59B6);color:#fff;padding:20px 32px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 20px rgba(92,53,191,.3)}
+header .logo{font-size:2rem}
+header .app-name{font-size:1.5rem;font-weight:800}
+header .app-sub{font-size:.82rem;opacity:.8;margin-top:1px}
+header .chars{margin-left:auto;display:flex;gap:7px}
+.char-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem;border:2px solid rgba(255,255,255,.4)}
+
+/* ── Nav ── */
+nav{display:flex;gap:0;background:#fff;border-bottom:2px solid #EDE7FF;padding:0 32px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(92,53,191,.08)}
+.nav-btn{padding:14px 24px;border:none;background:none;font-size:.92rem;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .2s;display:flex;align-items:center;gap:7px}
+.nav-btn:hover{color:var(--brand);background:#FAF8FF}
+.nav-btn.active{color:var(--brand);border-bottom-color:var(--brand)}
+
+/* ── Pages ── */
+.page{display:none;padding:28px 32px;max-width:1400px;margin:0 auto}
+.page.active{display:block}
+
+/* ── Grid layouts ── */
+.two-col{display:grid;grid-template-columns:400px 1fr;gap:24px}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px}
+@media(max-width:900px){.two-col,.three-col{grid-template-columns:1fr}}
+
+/* ── Cards ── */
+.card{background:var(--card);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);margin-bottom:20px}
+.card-title{font-size:1rem;font-weight:700;color:var(--brand);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.card-title span{font-size:1.1rem}
+
+/* ── Form elements ── */
+label{font-size:.8rem;font-weight:600;color:var(--muted);display:block;margin-bottom:5px;margin-top:12px}
+label:first-child{margin-top:0}
+input[type=text],input[type=password],input[type=email],textarea,select{
+  width:100%;padding:10px 13px;border:1.5px solid #E0D9F5;border-radius:10px;
+  font-size:.9rem;color:var(--text);background:#FAF8FF;outline:none;transition:border-color .2s;
+  font-family:inherit}
+input:focus,textarea:focus,select:focus{border-color:var(--brand)}
+textarea{resize:vertical;min-height:90px}
+input[type=color]{width:48px;height:36px;border-radius:8px;border:1.5px solid #E0D9F5;padding:2px;cursor:pointer;background:none}
+
+/* ── Buttons ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 22px;border-radius:12px;border:none;font-size:.9rem;font-weight:700;cursor:pointer;transition:all .2s}
+.btn-primary{background:linear-gradient(135deg,var(--brand),var(--brand-l));color:#fff;box-shadow:0 4px 14px rgba(92,53,191,.3);width:100%;margin-top:16px}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(92,53,191,.4)}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-secondary{background:#EDE7FF;color:var(--brand)}
+.btn-secondary:hover{background:#DDD3F8}
+.btn-sm{padding:7px 14px;font-size:.78rem;border-radius:8px}
+.btn-copy{background:#F0FFF4;color:#2E7D32;border:1px solid #A5D6A7}
+.btn-copy:hover{background:#E8F5E9}
+.btn-save{background:linear-gradient(135deg,#2E7D32,var(--tully));color:#fff;box-shadow:0 4px 14px rgba(76,175,80,.3)}
+
+/* ── Drop zone ── */
+.drop-zone{border:2.5px dashed #C4B8EC;border-radius:14px;cursor:pointer;text-align:center;position:relative;overflow:hidden;transition:all .2s;background:#FAF8FF}
+.drop-zone:hover{border-color:var(--brand);background:#F0EBFF;transform:translateY(-1px)}
+.drop-zone.dragover{border-color:var(--brand-l);background:#EDE7FF;transform:scale(1.02)}
+.drop-zone.has-file{border-color:var(--tully);border-style:solid;background:#F0FFF4}
+.drop-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.dz-idle{padding:28px 20px;pointer-events:none}
+.dz-idle .dz-icon{font-size:2.2rem;margin-bottom:8px;display:block;transition:transform .3s}
+.drop-zone:hover .dz-icon{transform:translateY(-4px) scale(1.1)}
+.drop-zone.dragover .dz-icon{transform:scale(1.3) rotate(-8deg)}
+.dz-idle .dz-lbl{font-size:.86rem;color:var(--muted);line-height:1.5}
+.dz-idle .dz-lbl strong{color:var(--brand)}
+.dz-fmts{display:flex;gap:5px;justify-content:center;flex-wrap:wrap;margin-top:8px}
+.dz-fmt{background:#EDE7FF;color:var(--brand);border-radius:20px;padding:2px 9px;font-size:.7rem;font-weight:700}
+.dz-loaded{display:none;padding:13px 15px;align-items:center;gap:11px;text-align:left;pointer-events:none}
+.drop-zone.has-file .dz-idle{display:none}
+.drop-zone.has-file .dz-loaded{display:flex}
+.dz-file-icon{width:44px;height:44px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;background:#E8F5E9}
+.dz-file-info{flex:1;min-width:0}
+.dz-file-name{font-size:.86rem;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dz-file-meta{font-size:.74rem;color:var(--muted);margin-top:2px}
+.dz-remove{width:27px;height:27px;border-radius:50%;background:#FFE0E0;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.8rem;color:var(--razzy);flex-shrink:0;transition:all .2s;pointer-events:all;z-index:2}
+.dz-remove:hover{background:var(--razzy);color:#fff}
+.dz-drag-hint{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.95rem;font-weight:700;color:var(--brand);opacity:0;transition:opacity .2s;pointer-events:none;background:rgba(92,53,191,.06);border-radius:12px}
+.drop-zone.dragover .dz-drag-hint{opacity:1}
+.dz-replace-hint{position:absolute;inset:0;background:rgba(76,175,80,.1);display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;color:#2E7D32;opacity:0;transition:opacity .2s;pointer-events:none;border-radius:12px}
+.drop-zone.has-file:hover .dz-replace-hint{opacity:1}
+
+/* ── Platform pills ── */
+.platform-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:4px}
+.platform-btn{padding:10px 8px;border:2px solid #E0D9F5;border-radius:10px;background:#FAF8FF;cursor:pointer;font-size:.78rem;font-weight:600;color:var(--muted);text-align:center;transition:all .2s}
+.platform-btn:hover{border-color:var(--brand);color:var(--brand);background:#F0EBFF}
+.platform-btn.selected{border-color:var(--brand);background:var(--brand);color:#fff}
+.platform-btn .p-icon{font-size:1.3rem;display:block;margin-bottom:3px}
+
+/* ── Content type buttons ── */
+.type-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.type-btn{padding:8px 14px;border:2px solid #E0D9F5;border-radius:20px;background:#FAF8FF;cursor:pointer;font-size:.78rem;font-weight:600;color:var(--muted);transition:all .2s}
+.type-btn:hover{border-color:var(--brand);color:var(--brand)}
+.type-btn.selected{border-color:var(--brand);background:var(--brand);color:#fff}
+
+/* ── Tone pills ── */
+.tone-grid{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.tone-btn{padding:7px 14px;border:2px solid #E0D9F5;border-radius:20px;background:#FAF8FF;cursor:pointer;font-size:.76rem;font-weight:600;color:var(--muted);transition:all .2s}
+.tone-btn.selected{background:var(--brand-l);border-color:var(--brand-l);color:#fff}
+
+/* ── Progress steps ── */
+.steps{display:flex;flex-direction:column;gap:9px;margin-top:4px}
+.step-row{display:flex;align-items:center;gap:11px;padding:9px 13px;border-radius:10px;background:#FAF8FF;border:1.5px solid #E8E2F8;transition:all .3s}
+.step-row.active{border-color:var(--brand);background:#F0EBFF}
+.step-row.done{border-color:var(--tully);background:#F0FFF2}
+.step-row.error{border-color:var(--razzy);background:#FFF2F2}
+.step-dot{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.82rem;font-weight:700;flex-shrink:0;background:#E0D9F5;color:var(--brand);transition:all .3s}
+.step-row.active .step-dot{background:var(--brand);color:#fff}
+.step-row.done .step-dot{background:var(--tully);color:#fff}
+.step-lbl{font-size:.86rem;font-weight:600}
+.step-sub{font-size:.74rem;color:var(--muted)}
+.spinner{width:15px;height:15px;border:2px solid var(--brand);border-top-color:transparent;border-radius:50%;animation:spin .7s linear infinite;margin-left:auto;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── Output tabs ── */
+.tabs{display:flex;gap:3px;background:#F0EBFF;border-radius:10px;padding:4px;margin-bottom:14px}
+.tab-btn{flex:1;padding:7px 4px;border:none;border-radius:7px;font-size:.75rem;font-weight:600;cursor:pointer;background:transparent;color:var(--muted);transition:all .2s}
+.tab-btn.active{background:var(--brand);color:#fff}
+.tab-pane{display:none}
+.tab-pane.active{display:block}
+.step-out{background:#FAF8FF;border:1.5px solid #E0D9F5;border-radius:10px;padding:14px;font-size:.82rem;line-height:1.65;white-space:pre-wrap;max-height:300px;overflow-y:auto;color:var(--text)}
+
+/* ── Game preview ── */
+.game-wrap{background:#1A1A2E;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.game-toolbar{display:flex;gap:9px;align-items:center;padding:10px 14px;background:#0F0F1F}
+.game-toolbar span{color:#aaa;font-size:.8rem;flex:1}
+.btn-open{padding:7px 14px;border-radius:7px;border:none;font-size:.8rem;font-weight:700;cursor:pointer;background:var(--brand);color:#fff;transition:all .2s}
+.btn-dl{padding:7px 14px;border-radius:7px;border:1px solid #444;font-size:.8rem;font-weight:700;cursor:pointer;background:#222;color:#ddd;transition:all .2s}
+.btn-open:hover{background:var(--brand-l)}
+.btn-dl:hover{background:#333}
+.game-wrap iframe{width:100%;height:520px;border:none;display:block}
+
+/* ── Content output cards ── */
+.content-card{background:#FAF8FF;border:1.5px solid #E0D9F5;border-radius:12px;padding:18px;margin-bottom:16px;position:relative}
+.content-card .cc-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.content-card .cc-platform{font-size:.78rem;font-weight:700;color:var(--brand);background:#EDE7FF;padding:3px 10px;border-radius:20px}
+.content-card .cc-type{font-size:.76rem;color:var(--muted)}
+.content-card .cc-body{font-size:.86rem;line-height:1.7;white-space:pre-wrap;color:var(--text)}
+.cc-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+
+/* ── Character pill (content creator) ── */
+.char-analysis{background:#FFF9E6;border:1.5px solid #FFE082;border-radius:10px;padding:14px;margin-bottom:14px;font-size:.84rem;line-height:1.6;color:#5D4037;white-space:pre-wrap}
+
+/* ── Settings ── */
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media(max-width:800px){.settings-grid{grid-template-columns:1fr}}
+.color-row{display:flex;align-items:center;gap:10px;margin-top:6px}
+.color-preview{width:36px;height:36px;border-radius:8px;border:1.5px solid #E0D9F5;flex-shrink:0}
+.color-row label{margin:0;font-size:.84rem}
+.save-indicator{display:none;font-size:.76rem;color:var(--tully);font-weight:600;margin-top:8px}
+.save-indicator.visible{display:block}
+
+/* ── Placeholder state ── */
+.placeholder-panel{display:flex;align-items:center;justify-content:center;min-height:360px;flex-direction:column;gap:14px;text-align:center;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow)}
+.placeholder-panel .ph-icon{font-size:3.5rem}
+.placeholder-panel .ph-title{font-weight:700;font-size:1rem;color:var(--brand)}
+.placeholder-panel .ph-sub{color:var(--muted);font-size:.86rem;max-width:280px;line-height:1.6}
+
+/* ── Toast ── */
+#toast{position:fixed;bottom:24px;right:24px;background:var(--razzy);color:#fff;padding:11px 18px;border-radius:10px;font-size:.86rem;font-weight:600;display:none;z-index:9999;box-shadow:0 4px 18px rgba(0,0,0,.2)}
+
+/* ── Page overlay ── */
+#page-drop-overlay{position:fixed;inset:0;background:rgba(92,53,191,.18);backdrop-filter:blur(4px);z-index:9998;display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;border:5px dashed var(--brand-l);box-sizing:border-box;pointer-events:none}
+#page-drop-overlay.visible{display:flex}
+#page-drop-overlay .ov-icon{font-size:4.5rem;animation:float .9s ease-in-out infinite alternate}
+#page-drop-overlay .ov-label{font-size:1.4rem;font-weight:800;color:#fff;text-shadow:0 2px 14px rgba(0,0,0,.3)}
+@keyframes float{0%{transform:translateY(0) scale(1)}100%{transform:translateY(-10px) scale(1.08)}}
+
+/* ── Character legend ── */
+.char-legend{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:14px}
+.char-pill{display:flex;align-items:center;gap:6px;padding:6px 9px;border-radius:30px;font-size:.74rem;font-weight:600;color:#fff}
+</style>
+</head>
+<body>
+
+<!-- Full-page drop overlay -->
+<div id="page-drop-overlay">
+  <div class="ov-icon">📂</div>
+  <div class="ov-label">Drop your file anywhere!</div>
+</div>
+<div id="toast"></div>
+
+<!-- Header -->
+<header>
+  <div class="logo" id="hdr-logo">🎮</div>
+  <div>
+    <div class="app-name" id="hdr-name">Moodsters Studio</div>
+    <div class="app-sub">Upload assets. Build games. Create content.</div>
+  </div>
+  <div class="chars">
+    <div class="char-dot" style="background:#FFD700">😄</div>
+    <div class="char-dot" style="background:#FF69B4">🥰</div>
+    <div class="char-dot" style="background:#4CAF50">😌</div>
+    <div class="char-dot" style="background:#E53935">😡</div>
+    <div class="char-dot" style="background:#FF9800">😨</div>
+    <div class="char-dot" style="background:#1976D2">😢</div>
+  </div>
+</header>
+
+<!-- Navigation -->
+<nav>
+  <button class="nav-btn active" onclick="showPage('game',this)">
+    <span>🎮</span> Game Designer
+  </button>
+  <button class="nav-btn" onclick="showPage('content',this)">
+    <span>📱</span> Content Creator
+  </button>
+  <button class="nav-btn" onclick="showPage('settings',this)">
+    <span>⚙️</span> Settings
+  </button>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════
+     PAGE 1: GAME DESIGNER
+════════════════════════════════════════════════════════ -->
+<div id="page-game" class="page active">
+<div class="two-col">
+
+  <!-- Left panel -->
+  <div>
+    <div class="card">
+      <div class="card-title"><span>🔑</span> OpenAI API Key</div>
+      <label for="g-api-key">Your key is used only for this session</label>
+      <input type="password" id="g-api-key" placeholder="sk-..." autocomplete="off"/>
+      <p style="font-size:.74rem;color:var(--muted);margin-top:7px">
+        Needs GPT-4o access. Key is never stored on the server.
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span>📤</span> Moodsters Asset</div>
+      <label for="g-text">Describe the asset (or paste workbook text)</label>
+      <textarea id="g-text" placeholder="e.g. Moodsters workbook about Razzy the angry Moodster..."></textarea>
+      <div style="text-align:center;color:var(--muted);font-size:.8rem;font-weight:600;margin:12px 0;position:relative">
+        <span style="background:var(--card);padding:0 10px;position:relative;z-index:1">or upload a file</span>
+        <div style="position:absolute;top:50%;left:0;right:0;height:1px;background:#E0D9F5"></div>
+      </div>
+      <div class="drop-zone" id="g-dz">
+        <input type="file" id="g-file" accept=".pdf,.jpg,.jpeg,.png,.gif,.webp"/>
+        <div class="dz-idle">
+          <span class="dz-icon">📂</span>
+          <div class="dz-lbl"><strong>Click to upload</strong> or drag &amp; drop anywhere</div>
+          <div class="dz-fmts"><span class="dz-fmt">PDF</span><span class="dz-fmt">JPG</span><span class="dz-fmt">PNG</span><span class="dz-fmt">max 50MB</span></div>
+        </div>
+        <div class="dz-loaded" id="g-dz-loaded">
+          <div class="dz-file-icon" id="g-dz-icon">📄</div>
+          <div class="dz-file-info">
+            <div class="dz-file-name" id="g-dz-name">—</div>
+            <div class="dz-file-meta" id="g-dz-meta">—</div>
+          </div>
+          <button class="dz-remove" id="g-dz-rm" title="Remove">✕</button>
+        </div>
+        <div class="dz-drag-hint">Drop it here! 🎯</div>
+        <div class="dz-replace-hint">🔄 Click to replace</div>
+      </div>
+      <button class="btn btn-primary" id="g-gen-btn" onclick="startGame()">✨ Generate Game</button>
+    </div>
+
+    <div class="card" id="g-progress" style="display:none">
+      <div class="card-title"><span>⚙️</span> Building your game…</div>
+      <div class="steps">
+        <div class="step-row" id="g-sr-1"><div class="step-dot" id="g-sd-1">1</div><div><div class="step-lbl">Asset Analysis</div><div class="step-sub">Extracting emotion, characters & mechanics</div></div></div>
+        <div class="step-row" id="g-sr-2"><div class="step-dot" id="g-sd-2">2</div><div><div class="step-lbl">Simplify for Ages 3–6</div><div class="step-sub">Adapting to tap, drag & swipe</div></div></div>
+        <div class="step-row" id="g-sr-3"><div class="step-dot" id="g-sd-3">3</div><div><div class="step-lbl">Game Script</div><div class="step-sub">Writing scenes & character dialogue</div></div></div>
+        <div class="step-row" id="g-sr-4"><div class="step-dot" id="g-sd-4">4</div><div><div class="step-lbl">Digitization Plan</div><div class="step-sub">Designing each screen layout</div></div></div>
+        <div class="step-row" id="g-sr-5"><div class="step-dot" id="g-sd-5">5</div><div><div class="step-lbl">Character Integration</div><div class="step-sub">Animations & voice direction</div></div></div>
+        <div class="step-row" id="g-sr-6"><div class="step-dot" id="g-sd-6">🎮</div><div><div class="step-lbl">Game Code</div><div class="step-sub">Building the playable HTML5 game</div></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span>🌈</span> Character Guide</div>
+      <div class="char-legend">
+        <div class="char-pill" style="background:#FFD700;color:#333">😄 Coz — Happy</div>
+        <div class="char-pill" style="background:#FF69B4">🥰 Lolly — Loving</div>
+        <div class="char-pill" style="background:#4CAF50">😌 Tully — Calm</div>
+        <div class="char-pill" style="background:#E53935">😡 Razzy — Angry</div>
+        <div class="char-pill" style="background:#FF9800">😨 Quigly — Scared</div>
+        <div class="char-pill" style="background:#1976D2">😢 Snorf — Sad</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right panel -->
+  <div>
+    <div id="g-placeholder" class="placeholder-panel">
+      <div class="ph-icon">🎮</div>
+      <div class="ph-title">Your game will appear here</div>
+      <div class="ph-sub">Upload a Moodsters PDF, image, or describe an asset — then click Generate Game</div>
+    </div>
+
+    <div class="card" id="g-output" style="display:none">
+      <div class="card-title"><span>📄</span> Generated Game Script</div>
+      <div class="tabs">
+        <button class="tab-btn active" onclick="showTab('g-t1',this)">Analysis</button>
+        <button class="tab-btn" onclick="showTab('g-t2',this)">Simplified</button>
+        <button class="tab-btn" onclick="showTab('g-t3',this)">Script</button>
+        <button class="tab-btn" onclick="showTab('g-t4',this)">Screens</button>
+        <button class="tab-btn" onclick="showTab('g-t5',this)">Characters</button>
+      </div>
+      <div id="g-t1" class="tab-pane active"><div class="step-out" id="g-s1"></div></div>
+      <div id="g-t2" class="tab-pane"><div class="step-out" id="g-s2"></div></div>
+      <div id="g-t3" class="tab-pane"><div class="step-out" id="g-s3"></div></div>
+      <div id="g-t4" class="tab-pane"><div class="step-out" id="g-s4"></div></div>
+      <div id="g-t5" class="tab-pane"><div class="step-out" id="g-s5"></div></div>
+    </div>
+
+    <div id="g-game" style="display:none">
+      <div class="game-wrap">
+        <div class="game-toolbar">
+          <span id="g-game-lbl">🎮 Moodsters Game</span>
+          <button class="btn-open" id="g-open-btn">↗ Full Screen</button>
+          <button class="btn-dl" id="g-dl-btn">⬇ Download</button>
+        </div>
+        <iframe id="g-frame" title="Game Preview" sandbox="allow-scripts allow-same-origin"></iframe>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     PAGE 2: CONTENT CREATOR
+════════════════════════════════════════════════════════ -->
+<div id="page-content" class="page">
+<div class="two-col">
+
+  <!-- Left: Input panel -->
+  <div>
+    <div class="card">
+      <div class="card-title"><span>🔑</span> OpenAI API Key</div>
+      <input type="password" id="c-api-key" placeholder="sk-..." autocomplete="off"/>
+      <p style="font-size:.74rem;color:var(--muted);margin-top:6px">Shared with Game Designer if set in Settings.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span>🧑‍🎨</span> Upload Character</div>
+      <label>Image or description of the Moodster character</label>
+      <textarea id="c-text" placeholder="e.g. Razzy the red Moodster, feeling very angry, holding a thermometer..." style="min-height:70px"></textarea>
+      <div style="text-align:center;color:var(--muted);font-size:.8rem;font-weight:600;margin:10px 0;position:relative">
+        <span style="background:var(--card);padding:0 10px;position:relative;z-index:1">or upload a photo</span>
+        <div style="position:absolute;top:50%;left:0;right:0;height:1px;background:#E0D9F5"></div>
+      </div>
+      <div class="drop-zone" id="c-dz">
+        <input type="file" id="c-file" accept=".jpg,.jpeg,.png,.gif,.webp"/>
+        <div class="dz-idle">
+          <span class="dz-icon">🧑‍🎨</span>
+          <div class="dz-lbl"><strong>Click to upload</strong> character image</div>
+          <div class="dz-fmts"><span class="dz-fmt">JPG</span><span class="dz-fmt">PNG</span><span class="dz-fmt">WEBP</span></div>
+        </div>
+        <div class="dz-loaded" id="c-dz-loaded">
+          <div class="dz-file-icon" id="c-dz-icon">🖼️</div>
+          <div class="dz-file-info">
+            <div class="dz-file-name" id="c-dz-name">—</div>
+            <div class="dz-file-meta" id="c-dz-meta">—</div>
+          </div>
+          <button class="dz-remove" id="c-dz-rm" title="Remove">✕</button>
+        </div>
+        <div class="dz-drag-hint">Drop it here! 🎯</div>
+        <div class="dz-replace-hint">🔄 Click to replace</div>
+      </div>
+    </div>
+
+    <div class="card" id="c-platform-card">
+      <div class="card-title"><span>📣</span> Platform</div>
+      <div class="platform-grid">
+        <button class="platform-btn selected" data-platform="instagram" onclick="selectPlatform(this)"><span class="p-icon">📸</span>Instagram</button>
+        <button class="platform-btn" data-platform="tiktok" onclick="selectPlatform(this)"><span class="p-icon">🎵</span>TikTok</button>
+        <button class="platform-btn" data-platform="twitter" onclick="selectPlatform(this)"><span class="p-icon">𝕏</span>Twitter/X</button>
+        <button class="platform-btn" data-platform="facebook" onclick="selectPlatform(this)"><span class="p-icon">👥</span>Facebook</button>
+        <button class="platform-btn" data-platform="pinterest" onclick="selectPlatform(this)"><span class="p-icon">📌</span>Pinterest</button>
+        <button class="platform-btn" data-platform="email" onclick="selectPlatform(this)"><span class="p-icon">📧</span>Email</button>
+        <button class="platform-btn" data-platform="youtube" onclick="selectPlatform(this)"><span class="p-icon">▶️</span>YouTube</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span>📝</span> Content Type</div>
+      <!-- Content mode tabs -->
+      <div style="display:flex;gap:6px;margin-bottom:14px">
+        <button class="nav-btn active" id="mode-text-btn" onclick="setContentMode('text',this)" style="flex:1;padding:10px;border-radius:10px;border:1.5px solid #E0D9F5;font-size:.82rem">📝 Text Content</button>
+        <button class="nav-btn" id="mode-video-btn" onclick="setContentMode('video',this)" style="flex:1;padding:10px;border-radius:10px;border:1.5px solid #E0D9F5;font-size:.82rem">🎬 Video</button>
+      </div>
+
+      <!-- Text content options -->
+      <div id="text-content-opts">
+        <div class="type-grid">
+          <button class="type-btn selected" data-type="caption" onclick="selectType(this)">📝 Caption</button>
+          <button class="type-btn" data-type="reel_script" onclick="selectType(this)">🎬 Reel Script</button>
+          <button class="type-btn" data-type="story" onclick="selectType(this)">📖 Story Slides</button>
+          <button class="type-btn" data-type="carousel" onclick="selectType(this)">🎠 Carousel</button>
+          <button class="type-btn" data-type="email" onclick="selectType(this)">📧 Email Snippet</button>
+        </div>
+      </div>
+
+      <!-- Video options -->
+      <div id="video-content-opts" style="display:none">
+        <label>Video Mode</label>
+        <div class="type-grid" style="margin-bottom:10px">
+          <button class="type-btn selected" data-vmode="talking" onclick="selectVMode(this)">🗣️ Talking Character<br><small style="font-weight:400;opacity:.8">HeyGen + ElevenLabs</small></button>
+          <button class="type-btn" data-vmode="animation" onclick="selectVMode(this)">🎬 Animation<br><small style="font-weight:400;opacity:.8">fal.ai Kling</small></button>
+          <button class="type-btn" data-vmode="voice" onclick="selectVMode(this)">🎙️ Voice Only<br><small style="font-weight:400;opacity:.8">ElevenLabs MP3</small></button>
+        </div>
+
+        <label>Video Type</label>
+        <select id="c-video-type">
+          <option value="social_reel">🎯 Social Reel — fun, upbeat clip</option>
+          <option value="character_intro">👋 Character Intro — character introduces themselves</option>
+          <option value="coping_tip">💡 Coping Tip — teaches a strategy</option>
+          <option value="story_moment">📖 Story Moment — emotional scene</option>
+          <option value="celebration">🎉 Celebration — dancing & confetti energy</option>
+        </select>
+
+        <label style="margin-top:10px">Aspect Ratio</label>
+        <div class="type-grid">
+          <button class="type-btn selected" data-ratio="9:16" onclick="selectRatio(this)">📱 9:16<br><small style="font-weight:400;opacity:.8">Reels/TikTok</small></button>
+          <button class="type-btn" data-ratio="1:1" onclick="selectRatio(this)">⬜ 1:1<br><small style="font-weight:400;opacity:.8">Feed post</small></button>
+          <button class="type-btn" data-ratio="16:9" onclick="selectRatio(this)">📺 16:9<br><small style="font-weight:400;opacity:.8">YouTube</small></button>
+        </div>
+
+        <label style="margin-top:10px">Duration</label>
+        <select id="c-vid-duration">
+          <option value="5">5 seconds (animation)</option>
+          <option value="10">10 seconds</option>
+          <option value="15" selected>15 seconds</option>
+          <option value="30">30 seconds</option>
+        </select>
+      </div>
+
+      <label style="margin-top:14px">Video duration (for Reel scripts)</label>
+      <select id="c-duration">
+        <option value="15 seconds">15 seconds</option>
+        <option value="30 seconds" selected>30 seconds</option>
+        <option value="60 seconds">60 seconds</option>
+      </select>
+    </div>
+
+    <div class="card" id="c-tone-card">
+      <div class="card-title"><span>🎨</span> Tone</div>
+      <div class="tone-grid">
+        <button class="tone-btn selected" data-tone="Playful and fun" onclick="selectTone(this)">🎉 Playful</button>
+        <button class="tone-btn" data-tone="Educational and informative" onclick="selectTone(this)">📚 Educational</button>
+        <button class="tone-btn" data-tone="Warm and emotional" onclick="selectTone(this)">💛 Warm</button>
+        <button class="tone-btn" data-tone="Funny and lighthearted" onclick="selectTone(this)">😄 Funny</button>
+        <button class="tone-btn" data-tone="Inspiring and motivational" onclick="selectTone(this)">✨ Inspiring</button>
+      </div>
+      <button class="btn btn-primary" id="c-gen-btn" onclick="startGeneration()">✨ Generate</button>
+    </div>
+  </div>
+
+  <!-- Right: Output panel -->
+  <div>
+    <div id="c-placeholder" class="placeholder-panel">
+      <div class="ph-icon">📱</div>
+      <div class="ph-title">Your content will appear here</div>
+      <div class="ph-sub">Upload a character image or describe a Moodster, pick a platform, and click Generate</div>
+    </div>
+    <div id="c-loading" style="display:none">
+      <div class="card" style="text-align:center;padding:40px 20px">
+        <div style="font-size:2.5rem;margin-bottom:12px;animation:bounce 1s ease-in-out infinite">🎨</div>
+        <div style="font-weight:700;color:var(--brand);margin-bottom:6px" id="c-loading-label">Creating…</div>
+        <div style="font-size:.84rem;color:var(--muted)" id="c-loading-sub">Analyzing character</div>
+      </div>
+    </div>
+
+    <!-- Video output (shown when video mode) -->
+    <div id="c-video-output" style="display:none">
+      <div class="card" id="c-vid-char-card" style="display:none">
+        <div class="card-title"><span>🧑‍🎨</span> Character Identified</div>
+        <div class="char-analysis" id="c-vid-char-info"></div>
+      </div>
+      <div class="card" id="c-script-card" style="display:none">
+        <div class="card-title"><span>📝</span> Script / Motion Prompt</div>
+        <div class="step-out" id="c-vid-script"></div>
+      </div>
+      <div id="c-video-player-wrap" style="display:none">
+        <div class="game-wrap">
+          <div class="game-toolbar">
+            <span id="c-vid-label">🎬 Generated Video</span>
+            <button class="btn-open" id="c-vid-open">↗ Open</button>
+            <button class="btn-dl" id="c-vid-dl">⬇ Download</button>
+          </div>
+          <video id="c-video-el" controls style="width:100%;max-height:540px;background:#000;display:block"></video>
+        </div>
+      </div>
+      <div id="c-audio-player-wrap" style="display:none">
+        <div class="card">
+          <div class="card-title"><span>🎙️</span> Generated Voice</div>
+          <audio id="c-audio-el" controls style="width:100%;margin-bottom:12px"></audio>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-copy btn-sm" id="c-audio-dl-btn">⬇ Download MP3</button>
+            <button class="btn btn-secondary btn-sm" onclick="copyText('c-vid-script',this)">📋 Copy Script</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="c-output" style="display:none">
+      <div class="card" id="c-char-card" style="display:none">
+        <div class="card-title"><span>🧑‍🎨</span> Character Identified</div>
+        <div class="char-analysis" id="c-char-info"></div>
+      </div>
+      <div id="c-results"></div>
+      <div style="display:flex;gap:10px;margin-top:4px">
+        <button class="btn btn-secondary" style="flex:1" onclick="startContent()">🔄 Regenerate</button>
+        <button class="btn btn-secondary" style="flex:1" onclick="copyAll()">📋 Copy All</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     PAGE 3: SETTINGS
+════════════════════════════════════════════════════════ -->
+<div id="page-settings" class="page">
+<div class="settings-grid">
+
+  <div>
+    <div class="card">
+      <div class="card-title"><span>🔑</span> API Keys</div>
+
+      <label for="s-api-key">OpenAI API Key</label>
+      <input type="password" id="s-api-key" placeholder="sk-..." autocomplete="off"/>
+
+      <label for="s-heygen-key" style="margin-top:12px">HeyGen API Key</label>
+      <input type="password" id="s-heygen-key" placeholder="Paste from app.heygen.com/account/api" autocomplete="off"/>
+      <p style="font-size:.72rem;color:var(--muted);margin-top:3px">Required for Talking Character videos</p>
+
+      <label for="s-el-key" style="margin-top:10px">ElevenLabs API Key</label>
+      <input type="password" id="s-el-key" placeholder="Paste from elevenlabs.io/app/settings" autocomplete="off"/>
+      <p style="font-size:.72rem;color:var(--muted);margin-top:3px">Required for voice generation</p>
+
+      <label for="s-fal-key" style="margin-top:10px">fal.ai API Key</label>
+      <input type="password" id="s-fal-key" placeholder="Paste from fal.ai/dashboard/keys" autocomplete="off"/>
+      <p style="font-size:.72rem;color:var(--muted);margin-top:3px">Required for animation videos</p>
+
+      <p style="font-size:.74rem;color:var(--muted);margin-top:10px">All keys stored in browser localStorage — never saved on our server.</p>
+      <button class="btn btn-save btn-sm" style="margin-top:10px;width:auto;padding:9px 18px" onclick="saveApiKey()">💾 Save All Keys</button>
+      <div class="save-indicator" id="s-key-saved">✅ Saved!</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span>🎨</span> App Branding</div>
+      <label for="s-app-name">App Name</label>
+      <input type="text" id="s-app-name" placeholder="Moodsters Studio" value="Moodsters Studio"/>
+      <label for="s-app-logo">Logo Emoji</label>
+      <input type="text" id="s-app-logo" placeholder="🎮" value="🎮" maxlength="4" style="width:80px"/>
+      <div style="margin-top:14px">
+        <label>Primary Color</label>
+        <div class="color-row">
+          <input type="color" id="s-color-primary" value="#5C35BF" oninput="previewColors()"/>
+          <div class="color-preview" id="cp-primary" style="background:#5C35BF"></div>
+          <label>Brand purple</label>
+        </div>
+        <label style="margin-top:10px">Accent Color</label>
+        <div class="color-row">
+          <input type="color" id="s-color-accent" value="#FFD700" oninput="previewColors()"/>
+          <div class="color-preview" id="cp-accent" style="background:#FFD700"></div>
+          <label>Coz yellow</label>
+        </div>
+      </div>
+      <button class="btn btn-save btn-sm" style="margin-top:14px;width:auto;padding:9px 18px" onclick="saveBranding()">💾 Apply Branding</button>
+      <div class="save-indicator" id="s-brand-saved">✅ Applied!</div>
+    </div>
+  </div>
+
+  <div>
+    <div class="card">
+      <div class="card-title"><span>📱</span> Content Creator Defaults</div>
+      <label for="s-def-platform">Default Platform</label>
+      <select id="s-def-platform">
+        <option value="instagram">Instagram</option>
+        <option value="tiktok">TikTok</option>
+        <option value="twitter">Twitter / X</option>
+        <option value="facebook">Facebook</option>
+        <option value="pinterest">Pinterest</option>
+        <option value="email">Email</option>
+        <option value="youtube">YouTube Shorts</option>
+      </select>
+      <label for="s-def-tone">Default Tone</label>
+      <select id="s-def-tone">
+        <option value="Playful and fun">Playful</option>
+        <option value="Educational and informative">Educational</option>
+        <option value="Warm and emotional">Warm</option>
+        <option value="Funny and lighthearted">Funny</option>
+        <option value="Inspiring and motivational">Inspiring</option>
+      </select>
+      <button class="btn btn-save btn-sm" style="margin-top:14px;width:auto;padding:9px 18px" onclick="saveContentDefaults()">💾 Save Defaults</button>
+      <div class="save-indicator" id="s-content-saved">✅ Saved!</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span>📖</span> Character Guide</div>
+      <label>Customize how the AI understands your characters</label>
+      <textarea id="s-char-guide" style="min-height:200px;font-size:.8rem;font-family:monospace">Coz = Happy | Yellow #FFD700 | Energetic, sunny, loves to dance
+Lolly = Loving | Pink #FF69B4 | Warm, nurturing, loves hugs
+Tully = Calm | Green #4CAF50 | Peaceful, slow-breathing, loves nature
+Razzy = Angry | Red #E53935 | Hot-headed but learns to cool down
+Quigly = Scared | Orange #FF9800 | Nervous but brave, loves comfort
+Snorf = Sad | Blue #1976D2 | Gentle, tearful, feels better with kindness</textarea>
+      <button class="btn btn-save btn-sm" style="margin-top:10px;width:auto;padding:9px 18px" onclick="saveCharGuide()">💾 Save Guide</button>
+      <div class="save-indicator" id="s-guide-saved">✅ Saved!</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span>🎮</span> Game Defaults</div>
+      <label for="s-scenes">Number of game scenes: <strong id="s-scenes-val">4–6</strong></label>
+      <input type="range" id="s-scenes" min="3" max="8" value="5" oninput="document.getElementById('s-scenes-val').textContent=this.value" style="width:100%;margin-top:6px;accent-color:var(--brand)"/>
+      <label for="s-model" style="margin-top:14px">OpenAI Model</label>
+      <select id="s-model">
+        <option value="gpt-4o" selected>GPT-4o (best quality)</option>
+        <option value="gpt-4o-mini">GPT-4o Mini (faster, cheaper)</option>
+        <option value="gpt-4-turbo">GPT-4 Turbo</option>
+      </select>
+      <button class="btn btn-save btn-sm" style="margin-top:14px;width:auto;padding:9px 18px" onclick="saveGameDefaults()">💾 Save Defaults</button>
+      <div class="save-indicator" id="s-game-saved">✅ Saved!</div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   SETTINGS & LOCALSTORAGE
+═══════════════════════════════════════════════════════ */
+function loadSettings() {
+  const s = JSON.parse(localStorage.getItem('moodsters_settings') || '{}');
+  if (s.apiKey) {
+    document.getElementById('g-api-key').value = s.apiKey;
+    document.getElementById('c-api-key').value = s.apiKey;
+    document.getElementById('s-api-key').value = s.apiKey;
+  }
+  if (s.heygenKey) document.getElementById('s-heygen-key').value = s.heygenKey;
+  if (s.elKey)     document.getElementById('s-el-key').value     = s.elKey;
+  if (s.falKey)    document.getElementById('s-fal-key').value    = s.falKey;
+  if (s.appName)  { document.getElementById('s-app-name').value  = s.appName;  applyBranding(s); }
+  if (s.appLogo)    document.getElementById('s-app-logo').value  = s.appLogo;
+  if (s.colorPrimary) { document.getElementById('s-color-primary').value = s.colorPrimary; }
+  if (s.colorAccent)  { document.getElementById('s-color-accent').value  = s.colorAccent; }
+  if (s.defPlatform) {
+    document.getElementById('s-def-platform').value = s.defPlatform;
+    document.querySelectorAll('.platform-btn').forEach(b => {
+      b.classList.toggle('selected', b.dataset.platform === s.defPlatform);
+    });
+  }
+  if (s.defTone) {
+    document.getElementById('s-def-tone').value = s.defTone;
+    document.querySelectorAll('.tone-btn').forEach(b => {
+      b.classList.toggle('selected', b.dataset.tone === s.defTone);
+    });
+  }
+  if (s.charGuide)  document.getElementById('s-char-guide').value  = s.charGuide;
+  if (s.scenesCount) {
+    document.getElementById('s-scenes').value = s.scenesCount;
+    document.getElementById('s-scenes-val').textContent = s.scenesCount;
+  }
+  if (s.model) document.getElementById('s-model').value = s.model;
+}
+
+function getSettings() { return JSON.parse(localStorage.getItem('moodsters_settings') || '{}'); }
+function saveSettings(patch) {
+  const s = { ...getSettings(), ...patch };
+  localStorage.setItem('moodsters_settings', JSON.stringify(s));
+  return s;
+}
+
+function saveApiKey() {
+  const key      = document.getElementById('s-api-key').value.trim();
+  const hgKey    = document.getElementById('s-heygen-key').value.trim();
+  const elKey    = document.getElementById('s-el-key').value.trim();
+  const falKey   = document.getElementById('s-fal-key').value.trim();
+  saveSettings({ apiKey: key, heygenKey: hgKey, elKey: elKey, falKey: falKey });
+  document.getElementById('g-api-key').value = key;
+  document.getElementById('c-api-key').value = key;
+  flashSaved('s-key-saved');
+}
+
+function saveBranding() {
+  const s = saveSettings({
+    appName:      document.getElementById('s-app-name').value.trim(),
+    appLogo:      document.getElementById('s-app-logo').value.trim(),
+    colorPrimary: document.getElementById('s-color-primary').value,
+    colorAccent:  document.getElementById('s-color-accent').value,
+  });
+  applyBranding(s);
+  flashSaved('s-brand-saved');
+}
+
+function applyBranding(s) {
+  if (s.appName) {
+    document.getElementById('hdr-name').textContent = s.appName;
+    document.title = s.appLogo ? s.appLogo + ' ' + s.appName : s.appName;
+  }
+  if (s.appLogo)  document.getElementById('hdr-logo').textContent = s.appLogo;
+  if (s.colorPrimary) document.documentElement.style.setProperty('--brand', s.colorPrimary);
+  if (s.colorAccent)  document.documentElement.style.setProperty('--coz', s.colorAccent);
+}
+
+function saveContentDefaults() {
+  saveSettings({
+    defPlatform: document.getElementById('s-def-platform').value,
+    defTone:     document.getElementById('s-def-tone').value,
+  });
+  flashSaved('s-content-saved');
+}
+
+function saveCharGuide() {
+  saveSettings({ charGuide: document.getElementById('s-char-guide').value });
+  flashSaved('s-guide-saved');
+}
+
+function saveGameDefaults() {
+  saveSettings({
+    scenesCount: document.getElementById('s-scenes').value,
+    model:       document.getElementById('s-model').value,
+  });
+  flashSaved('s-game-saved');
+}
+
+function previewColors() {
+  document.getElementById('cp-primary').style.background = document.getElementById('s-color-primary').value;
+  document.getElementById('cp-accent').style.background  = document.getElementById('s-color-accent').value;
+}
+
+function flashSaved(id) {
+  const el = document.getElementById(id);
+  el.classList.add('visible');
+  setTimeout(() => el.classList.remove('visible'), 2500);
+}
+
+/* ═══════════════════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════════════════ */
+function showPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  if (btn) btn.classList.add('active');
+  // sync API key across pages
+  const key = document.getElementById('g-api-key').value || document.getElementById('c-api-key').value || document.getElementById('s-api-key').value;
+  if (key) {
+    document.getElementById('g-api-key').value = key;
+    document.getElementById('c-api-key').value = key;
+    document.getElementById('s-api-key').value = key;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   SHARED UTILITIES
+═══════════════════════════════════════════════════════ */
+function toast(msg, color) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = color || '#E53935';
+  t.style.display = 'block';
+  setTimeout(() => t.style.display = 'none', 4000);
+}
+
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+const FILE_ICONS = { pdf:'📄', jpg:'🖼️', jpeg:'🖼️', png:'🖼️', gif:'🎞️', webp:'🖼️' };
+function fmtBytes(b) { return b < 1048576 ? (b/1024).toFixed(1)+' KB' : (b/1048576).toFixed(1)+' MB'; }
+function setFileInput(fi, file) {
+  try { const dt=new DataTransfer(); dt.items.add(file); fi.files=dt.files; } catch(e) {}
+}
+
+/* Drop zone factory */
+function initDropZone(dzId, inputId, rmId, nameId, metaId, iconId, accept) {
+  const dz   = document.getElementById(dzId);
+  const inp  = document.getElementById(inputId);
+  const allowed = new Set(accept.split(',').map(s => s.trim().replace('.', '')));
+
+  function showFile(file) {
+    const ext = file.name.split('.').pop().toLowerCase();
+    if (!allowed.has(ext)) { toast('Unsupported file type.'); return; }
+    document.getElementById(iconId).textContent = FILE_ICONS[ext] || '📄';
+    document.getElementById(nameId).textContent = file.name;
+    document.getElementById(metaId).textContent = fmtBytes(file.size) + '  ·  ' + ext.toUpperCase();
+    dz.classList.add('has-file');
+  }
+
+  function clear() { inp.value=''; dz.classList.remove('has-file'); }
+
+  document.getElementById(rmId).addEventListener('click', e => { e.stopPropagation(); e.preventDefault(); clear(); });
+  inp.addEventListener('change', () => { if (inp.files[0]) showFile(inp.files[0]); });
+  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
+  dz.addEventListener('dragleave', e => { if (!dz.contains(e.relatedTarget)) dz.classList.remove('dragover'); });
+  dz.addEventListener('drop', e => {
+    e.preventDefault(); dz.classList.remove('dragover');
+    const f = e.dataTransfer.files[0];
+    if (f) { setFileInput(inp, f); showFile(f); }
+  });
+}
+
+/* Full-page drag overlay */
+const overlay = document.getElementById('page-drop-overlay');
+let dragCounter = 0;
+document.addEventListener('dragenter', e => { if (!e.dataTransfer.types.includes('Files')) return; dragCounter++; overlay.classList.add('visible'); });
+document.addEventListener('dragleave', () => { dragCounter=Math.max(0,dragCounter-1); if (!dragCounter) overlay.classList.remove('visible'); });
+document.addEventListener('dragover', e => e.preventDefault());
+document.addEventListener('drop', e => { e.preventDefault(); dragCounter=0; overlay.classList.remove('visible'); });
+
+/* ═══════════════════════════════════════════════════════
+   GAME DESIGNER
+═══════════════════════════════════════════════════════ */
+let gJobId = null, gPollTimer = null;
+
+function setGameStep(n, state) {
+  const row=document.getElementById('g-sr-'+n), dot=document.getElementById('g-sd-'+n);
+  if (!row) return;
+  row.classList.remove('active','done','error');
+  const sp=row.querySelector('.spinner'); if(sp) sp.remove();
+  if (state==='active') { row.classList.add('active'); const s=document.createElement('div'); s.className='spinner'; row.appendChild(s); }
+  else if (state==='done')  { row.classList.add('done');  dot.textContent='✓'; }
+  else if (state==='error') { row.classList.add('error'); dot.textContent='✕'; }
+}
+
+async function startGame() {
+  const apiKey = document.getElementById('g-api-key').value.trim();
+  if (!apiKey) { toast('Please enter your OpenAI API key.'); return; }
+  const text = document.getElementById('g-text').value.trim();
+  const file  = document.getElementById('g-file').files[0];
+  if (!text && !file) { toast('Please upload a file or describe an asset.'); return; }
+
+  document.getElementById('g-gen-btn').disabled = true;
+  document.getElementById('g-placeholder').style.display = 'none';
+  document.getElementById('g-output').style.display = 'none';
+  document.getElementById('g-game').style.display = 'none';
+  document.getElementById('g-progress').style.display = 'block';
+  for (let i=1;i<=6;i++) setGameStep(i,'pending');
+
+  const fd = new FormData();
+  fd.append('api_key', apiKey);
+  if (file) fd.append('file', file); else fd.append('text_input', text);
+
+  try {
+    const res = await fetch('/generate', { method:'POST', body:fd });
+    const data = await res.json();
+    if (data.error) { toast(data.error); document.getElementById('g-gen-btn').disabled=false; return; }
+    gJobId = data.job_id;
+    pollGame();
+  } catch(e) { toast('Network error: '+e.message); document.getElementById('g-gen-btn').disabled=false; }
+}
+
+function pollGame() {
+  if (gPollTimer) clearTimeout(gPollTimer);
+  fetch('/status/'+gJobId).then(r=>r.json()).then(data => {
+    const step = data.step||0;
+    for (let i=1;i<=6;i++) {
+      if (i<step) setGameStep(i,'done');
+      else if (i===step) setGameStep(i,'active');
+    }
+    if (data.status==='done') {
+      for (let i=1;i<=6;i++) setGameStep(i,'done');
+      showGameResult(data);
+      document.getElementById('g-gen-btn').disabled=false;
+    } else if (data.status==='error') {
+      toast('Error: '+data.error);
+      document.getElementById('g-gen-btn').disabled=false;
+    } else {
+      gPollTimer = setTimeout(pollGame, 2500);
+    }
+  }).catch(()=>{ gPollTimer=setTimeout(pollGame,3000); });
+}
+
+function showGameResult(data) {
+  const r = data.result;
+  ['s1','s2','s3','s4','s5'].forEach(k => {
+    const el = document.getElementById('g-'+k);
+    if (el) el.textContent = r[k]||'';
+  });
+  document.getElementById('g-output').style.display='block';
+  const gid = data.game_id;
+  if (gid) {
+    const url='/preview/'+gid;
+    document.getElementById('g-frame').src=url;
+    document.getElementById('g-open-btn').onclick=()=>window.open(url,'_blank');
+    document.getElementById('g-dl-btn').onclick=()=>window.open('/download/'+gid,'_blank');
+    const m=(r.s3||'').match(/GAME TITLE[:\s"]+([^\n"]{3,50})/i);
+    if (m) document.getElementById('g-game-lbl').textContent='🎮 '+m[1].trim();
+    document.getElementById('g-game').style.display='block';
+  }
+  toast('✅ Game generated!','#4CAF50');
+}
+
+/* ═══════════════════════════════════════════════════════
+   CONTENT CREATOR
+═══════════════════════════════════════════════════════ */
+let selectedPlatform = 'instagram';
+let selectedType     = 'caption';
+let selectedTone     = 'Playful and fun';
+let selectedVMode    = 'talking';
+let selectedRatio    = '9:16';
+let contentMode      = 'text';  // 'text' | 'video'
+let vPollTimer       = null;
+
+function setContentMode(mode, btn) {
+  contentMode = mode;
+  document.querySelectorAll('#page-content .nav-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  document.getElementById('text-content-opts').style.display  = mode === 'text'  ? '' : 'none';
+  document.getElementById('video-content-opts').style.display = mode === 'video' ? '' : 'none';
+  // show/hide platform+tone (not needed for video)
+  document.getElementById('c-platform-card').style.display = mode === 'text' ? '' : 'none';
+  document.getElementById('c-tone-card').style.display     = mode === 'text' ? '' : 'none';
+  document.getElementById('c-gen-btn').textContent = mode === 'video' ? '🎬 Generate Video' : '✨ Generate Content';
+}
+
+function selectVMode(btn) {
+  document.querySelectorAll('[data-vmode]').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedVMode = btn.dataset.vmode;
+}
+function selectRatio(btn) {
+  document.querySelectorAll('[data-ratio]').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedRatio = btn.dataset.ratio;
+}
+
+function selectPlatform(btn) {
+  document.querySelectorAll('.platform-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedPlatform = btn.dataset.platform;
+}
+function selectType(btn) {
+  document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedType = btn.dataset.type;
+}
+function selectTone(btn) {
+  document.querySelectorAll('.tone-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedTone = btn.dataset.tone;
+}
+
+function startGeneration() {
+  if (contentMode === 'video') startVideo();
+  else startContent();
+}
+
+/* ── Video generation ────────────────────────────────── */
+async function startVideo() {
+  const s      = getSettings();
+  const apiKey = document.getElementById('c-api-key').value.trim() || s.apiKey || '';
+  const hgKey  = s.heygenKey || '';
+  const elKey  = s.elKey     || '';
+  const falKey = s.falKey    || '';
+  if (!apiKey) { toast('OpenAI API key required. Set it in ⚙️ Settings.'); return; }
+
+  const text = document.getElementById('c-text').value.trim();
+  const file  = document.getElementById('c-file').files[0];
+  if (!text && !file) { toast('Upload a character image or describe the character.'); return; }
+
+  document.getElementById('c-gen-btn').disabled = true;
+  document.getElementById('c-placeholder').style.display     = 'none';
+  document.getElementById('c-output').style.display          = 'none';
+  document.getElementById('c-video-output').style.display    = 'none';
+  document.getElementById('c-loading').style.display         = 'block';
+  document.getElementById('c-loading-label').textContent     = 'Generating video…';
+  document.getElementById('c-loading-sub').textContent       = 'Starting…';
+
+  const fd = new FormData();
+  fd.append('api_key',      apiKey);
+  fd.append('heygen_key',   hgKey);
+  fd.append('el_key',       elKey);
+  fd.append('fal_key',      falKey);
+  fd.append('video_mode',   selectedVMode);
+  fd.append('video_type',   document.getElementById('c-video-type').value);
+  fd.append('aspect_ratio', selectedRatio);
+  fd.append('duration',     document.getElementById('c-vid-duration').value);
+  if (file) fd.append('file', file); else fd.append('text_input', text);
+
+  try {
+    const res  = await fetch('/generate-video', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (data.error) { toast(data.error); document.getElementById('c-gen-btn').disabled=false; document.getElementById('c-loading').style.display='none'; return; }
+    pollVideo(data.job_id);
+  } catch(e) {
+    toast('Network error: ' + e.message);
+    document.getElementById('c-gen-btn').disabled = false;
+    document.getElementById('c-loading').style.display = 'none';
+  }
+}
+
+function pollVideo(jobId) {
+  if (vPollTimer) clearTimeout(vPollTimer);
+  fetch('/status/' + jobId).then(r => r.json()).then(data => {
+    if (data.label) document.getElementById('c-loading-sub').textContent = data.label;
+    if (data.status === 'done') {
+      document.getElementById('c-loading').style.display = 'none';
+      document.getElementById('c-gen-btn').disabled = false;
+      showVideoResult(data);
+    } else if (data.status === 'error') {
+      toast('Error: ' + data.error);
+      document.getElementById('c-loading').style.display = 'none';
+      document.getElementById('c-gen-btn').disabled = false;
+    } else {
+      vPollTimer = setTimeout(() => pollVideo(jobId), 4000);
+    }
+  }).catch(() => { vPollTimer = setTimeout(() => pollVideo(jobId), 5000); });
+}
+
+function showVideoResult(data) {
+  const r = data.result || {};
+  document.getElementById('c-video-output').style.display = 'block';
+
+  // Character analysis
+  const ci = document.getElementById('c-vid-char-info');
+  ci.textContent = r.char_analysis || '';
+  document.getElementById('c-vid-char-card').style.display = r.char_analysis ? 'block' : 'none';
+
+  // Script/prompt
+  const sc = document.getElementById('c-vid-script');
+  sc.textContent = r.script || r.prompt || '';
+  document.getElementById('c-script-card').style.display = (r.script || r.prompt) ? 'block' : 'none';
+
+  // Video player
+  if (data.video_id) {
+    const vidUrl = '/video/' + data.video_id;
+    const vid    = document.getElementById('c-video-el');
+    vid.src      = vidUrl;
+    document.getElementById('c-vid-open').onclick = () => window.open(vidUrl, '_blank');
+    document.getElementById('c-vid-dl').onclick   = () => window.open('/download-video/' + data.video_id, '_blank');
+    document.getElementById('c-video-player-wrap').style.display = 'block';
+    document.getElementById('c-audio-player-wrap').style.display = 'none';
+    document.getElementById('c-vid-label').textContent =
+      '🎬 ' + (r.char_name || 'Moodster') + ' — ' + (r.video_type || '');
+    toast('🎬 Video ready!', '#4CAF50');
+  } else if (data.audio_id) {
+    const audUrl = '/audio/' + data.audio_id;
+    document.getElementById('c-audio-el').src = audUrl;
+    document.getElementById('c-audio-dl-btn').onclick = () => window.open('/download-audio/' + data.audio_id, '_blank');
+    document.getElementById('c-audio-player-wrap').style.display = 'block';
+    document.getElementById('c-video-player-wrap').style.display = 'none';
+    toast('🎙️ Voice ready!', '#4CAF50');
+  }
+}
+
+async function startContent() {
+  const apiKey = document.getElementById('c-api-key').value.trim();
+  if (!apiKey) { toast('Please enter your OpenAI API key.'); return; }
+  const text = document.getElementById('c-text').value.trim();
+  const file  = document.getElementById('c-file').files[0];
+  if (!text && !file) { toast('Upload a character image or describe the character.'); return; }
+
+  document.getElementById('c-gen-btn').disabled = true;
+  document.getElementById('c-placeholder').style.display='none';
+  document.getElementById('c-output').style.display='none';
+  document.getElementById('c-loading').style.display='block';
+
+  const fd = new FormData();
+  fd.append('api_key',      apiKey);
+  fd.append('platform',     selectedPlatform);
+  fd.append('content_type', selectedType);
+  fd.append('tone',         selectedTone);
+  fd.append('duration',     document.getElementById('c-duration').value);
+  if (file) fd.append('file', file); else fd.append('text_input', text);
+
+  try {
+    const res  = await fetch('/generate-content', { method:'POST', body:fd });
+    const data = await res.json();
+    if (data.error) { toast(data.error); } else { showContentResult(data); }
+  } catch(e) { toast('Network error: '+e.message); }
+
+  document.getElementById('c-gen-btn').disabled=false;
+  document.getElementById('c-loading').style.display='none';
+}
+
+function showContentResult(data) {
+  // Character info
+  const ci = document.getElementById('c-char-info');
+  ci.textContent = data.character_info || '';
+  document.getElementById('c-char-card').style.display = data.character_info ? 'block' : 'none';
+
+  // Content card
+  const container = document.getElementById('c-results');
+  container.innerHTML = '';
+  const card = document.createElement('div');
+  card.className = 'content-card';
+  card.innerHTML = `
+    <div class="cc-header">
+      <span class="cc-platform">${data.platform || selectedPlatform}</span>
+      <span class="cc-type">${data.content_type || selectedType}</span>
+    </div>
+    <div class="cc-body" id="cc-body-main">${escHtml(data.content || '')}</div>
+    <div class="cc-actions">
+      <button class="btn btn-copy btn-sm" onclick="copyText('cc-body-main',this)">📋 Copy</button>
+    </div>`;
+  container.appendChild(card);
+
+  document.getElementById('c-output').style.display='block';
+  toast('✅ Content generated!','#4CAF50');
+}
+
+function copyText(id, btn) {
+  const text = document.getElementById(id).textContent;
+  navigator.clipboard.writeText(text).then(()=>{
+    btn.textContent='✅ Copied!';
+    setTimeout(()=>btn.textContent='📋 Copy', 2000);
+  });
+}
+
+function copyAll() {
+  const all = [...document.querySelectorAll('.cc-body')].map(el=>el.textContent).join('\n\n---\n\n');
+  navigator.clipboard.writeText(all).then(()=>toast('📋 All content copied!','#4CAF50'));
+}
+
+function escHtml(t) { return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
+
+/* ═══════════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════════ */
+initDropZone('g-dz','g-file','g-dz-rm','g-dz-name','g-dz-meta','g-dz-icon','.pdf,.jpg,.jpeg,.png,.gif,.webp');
+initDropZone('c-dz','c-file','c-dz-rm','c-dz-name','c-dz-meta','c-dz-icon','.jpg,.jpeg,.png,.gif,.webp');
+loadSettings();
+
+// Sync API key as user types on any page
+['g-api-key','c-api-key'].forEach(id => {
+  document.getElementById(id).addEventListener('input', function() {
+    document.getElementById('g-api-key').value = this.value;
+    document.getElementById('c-api-key').value = this.value;
+  });
+});
+</script>
+</body>
+</html>
